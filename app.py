@@ -106,4 +106,4 @@ with gr.Blocks() as demo:
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share="True")
