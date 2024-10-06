@@ -2,7 +2,6 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
-from pydantic import BaseModel
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
@@ -11,31 +10,31 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
-# Pydantic model to validate the input data
-class RequestData(BaseModel):
-    message: str
-    history: list[tuple[str, str]]
-    system_message: str = "You are a friendly Chatbot."
-    max_tokens: int = 512
-    temperature: float = 0.7
-    top_p: float = 0.95
-    use_local_model: bool = False
-
-    class Config:
-        arbitrary_types_allowed = True  # Allow arbitrary types in the model
-
-
-def respond(message: str, history: list[tuple[str, str]], system_message: str, max_tokens: int, temperature: float, top_p: float, use_local_model: bool): 
+def respond(
+    message,
+    history: list[tuple[str, str]],
+    system_message="You are a friendly Chatbot.",
+    max_tokens=512,
+    temperature=0.7,
+    top_p=0.95,
+    use_local_model=False,
+):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
 
-    # Adjust input format
+    # Initialize history if it's None
+    if history is None:
+        history = []
+
     if use_local_model:
-        # Local inference logic here
-        messages = [{"role": "system", "content": system_message}] + \
-                   [{"role": "user", "content": val[0]} for val in history if val[0]] + \
-                   [{"role": "assistant", "content": val[1]} for val in history if val[1]] + \
-                   [{"role": "user", "content": message}]
+        # local inference 
+        messages = [{"role": "system", "content": system_message}]
+        for val in history:
+            if val[0]:
+                messages.append({"role": "user", "content": val[0]})
+            if val[1]:
+                messages.append({"role": "assistant", "content": val[1]})
+        messages.append({"role": "user", "content": message})
 
         response = ""
         for output in pipe(
@@ -46,19 +45,22 @@ def respond(message: str, history: list[tuple[str, str]], system_message: str, m
             top_p=top_p,
         ):
             if stop_inference:
-                yield history + [(message, "Inference cancelled.")]
+                response = "Inference cancelled."
+                yield history + [(message, response)]
                 return
-            
             token = output['generated_text'][-1]['content']
             response += token
             yield history + [(message, response)]  # Yield history + new response
 
     else:
-        # API-based inference logic here
-        messages = [{"role": "system", "content": system_message}] + \
-                   [{"role": "user", "content": val[0]} for val in history if val[0]] + \
-                   [{"role": "assistant", "content": val[1]} for val in history if val[1]] + \
-                   [{"role": "user", "content": message}]
+        # API-based inference 
+        messages = [{"role": "system", "content": system_message}]
+        for val in history:
+            if val[0]:
+                messages.append({"role": "user", "content": val[0]})
+            if val[1]:
+                messages.append({"role": "assistant", "content": val[1]})
+        messages.append({"role": "user", "content": message})
 
         response = ""
         for message_chunk in client.chat_completion(
@@ -69,9 +71,12 @@ def respond(message: str, history: list[tuple[str, str]], system_message: str, m
             top_p=top_p,
         ):
             if stop_inference:
-                yield history + [(message, "Inference cancelled.")]
+                response = "Inference cancelled."
+                yield history + [(message, response)]
                 return
-            
+            if stop_inference:
+                response = "Inference cancelled."
+                break
             token = message_chunk.choices[0].delta.content
             response += token
             yield history + [(message, response)]  # Yield history + new response
@@ -81,9 +86,48 @@ def cancel_inference():
     global stop_inference
     stop_inference = True
 
+# Custom CSS for a fancy look
+custom_css = """
+#main-container {
+    background-color: #f0f0f0;
+    font-family: 'Arial', sans-serif;
+}
+.gradio-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+.gr-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.gr-button:hover {
+    background-color: #45a049;
+}
+.gr-slider input {
+    color: #4CAF50;
+}
+.gr-chat {
+    font-size: 16px;
+}
+#title {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #333;
+}
+"""
 
-# Define the Gradio interface as before
-with gr.Blocks() as demo:
+# Define the interface
+with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
 
@@ -97,13 +141,15 @@ with gr.Blocks() as demo:
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
 
     chat_history = gr.Chatbot(label="Chat")
+
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
+
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
-    # Pass inputs directly to the respond function
+    # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    demo.launch(share="True")
+    demo.launch(share=True)
