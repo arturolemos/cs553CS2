@@ -1,0 +1,26 @@
+name: Deploy App on VM
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest 
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 1: SSH into the virtual machine using public key
+      - name: SSH into VM and set up environment
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.VM_HOST }}  
+          username: ${{ secrets.VM_USER }} 
+          key: ${{ secrets.SSH_PRIVATE_KEY }} 
+          port: 22002
+          script: |
+            # Step 3: Clone repository using a token stored in secrets
+            git clone https://github.com/arturolemos/cs553CS2
+            cd deploy_test
+            git pull origin monitoring
