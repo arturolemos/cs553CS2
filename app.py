@@ -2,6 +2,7 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+from pydantic import BaseModel  # Import BaseModel from Pydantic
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
@@ -10,24 +11,41 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
+# Pydantic model to validate the input data
+class RequestData(BaseModel):  # Create a Pydantic model for input validation
+    message: str
+    history: list[tuple[str, str]]
+    system_message: str = "You are a friendly Chatbot."
+    max_tokens: int = 512
+    temperature: float = 0.7
+    top_p: float = 0.95
+    use_local_model: bool = False
+
+    class Config:
+        arbitrary_types_allowed = True  # Allow arbitrary types in the model
+
+
 def respond(
-    message,
-    history: list[tuple[str, str]],
-    system_message="You are a friendly Chatbot.",
-    max_tokens=512,
-    temperature=0.7,
-    top_p=0.95,
-    use_local_model=False,
+    data: RequestData  # Use the Pydantic model as an argument
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
+
+    # Extract values from the Pydantic model
+    message = data.message
+    history = data.history
+    system_message = data.system_message
+    max_tokens = data.max_tokens
+    temperature = data.temperature
+    top_p = data.top_p
+    use_local_model = data.use_local_model
 
     # Initialize history if it's None
     if history is None:
         history = []
 
     if use_local_model:
-        # local inference 
+        # Local inference
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -53,7 +71,7 @@ def respond(
             yield history + [(message, response)]  # Yield history + new response
 
     else:
-        # API-based inference 
+        # API-based inference
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -159,4 +177,3 @@ with gr.Blocks(css=custom_css) as demo:
 
 if __name__ == "__main__":
     demo.launch(share=True)  # Remove share=True because it's not supported on HF Spaces
-
