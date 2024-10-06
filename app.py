@@ -25,19 +25,11 @@ class RequestData(BaseModel):
         arbitrary_types_allowed = True  # Allow arbitrary types in the model
 
 
-def respond(data: RequestData):  # Accept the entire Pydantic model
+def respond(message: str, history: list[tuple[str, str]], system_message: str, max_tokens: int, temperature: float, top_p: float, use_local_model: bool): 
     global stop_inference
     stop_inference = False  # Reset cancellation flag
 
-    # Extract values from the Pydantic model
-    message = data.message
-    history = data.history or []  # Initialize history if it's None
-    system_message = data.system_message
-    max_tokens = data.max_tokens
-    temperature = data.temperature
-    top_p = data.top_p
-    use_local_model = data.use_local_model
-
+    # Adjust input format
     if use_local_model:
         # Local inference logic here
         messages = [{"role": "system", "content": system_message}] + \
@@ -108,8 +100,8 @@ with gr.Blocks() as demo:
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
-    # Adjust the submit function to pass the entire data model
-    user_input.submit(respond, [gr.State(value={'message': user_input, 'history': chat_history, 'system_message': system_message, 'max_tokens': max_tokens, 'temperature': temperature, 'top_p': top_p, 'use_local_model': use_local_model})], chat_history)
+    # Pass inputs directly to the respond function
+    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
