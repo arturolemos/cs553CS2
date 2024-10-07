@@ -5,12 +5,14 @@ REMOTE_USER="student-admin"
 REMOTE_HOST="paffenroth-23.dyn.wpi.edu"
 
 PUBLIC_KEY=${1:-"jose_key"}
-REPO="https://github.com/arturolemos/cs553CS2.git"
-PYTHON_VERSION="3.9"
 
 echo "Connecting to remote server and running commands..."
 
 ssh -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
+
+    REPO="https://github.com/arturolemos/cs553CS2.git"
+    PYTHON_VERSION="3.9"
+
     # Ensure we're in the home directory
     cd ~
 
@@ -42,7 +44,3 @@ EOF
 
 echo "Connection closed."
 
-echo "Installing dependencies from requirements.txt..."
-pip install -r requirements.txt
-
-echo "Setup complete."
