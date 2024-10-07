@@ -4,15 +4,13 @@ PORT=22015
 REMOTE_USER="student-admin"
 REMOTE_HOST="paffenroth-23.dyn.wpi.edu"
 
-# List of public keys to try
-KEY_LIST=("david_key" "arturo_key" "jose_key")
+# Specify the public key to use
+PUBLIC_KEY="my_key"
 
-# Function to attempt SSH and run the commands
-attempt_ssh() {
-    PUBLIC_KEY=$1
-    echo "Attempting to connect with key: $PUBLIC_KEY"
+echo "Attempting to connect with key: $PUBLIC_KEY"
 
-    ssh -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
+# Attempt SSH and run the commands
+ssh -t -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
 
     REPO="https://github.com/arturolemos/cs553CS2.git"
     PYTHON_VERSION="3.9"
@@ -60,25 +58,6 @@ attempt_ssh() {
     echo "Setup and execution complete."
 EOF
 
-    # Return SSH exit status
-    return $?
-}
-
-# Iterate through the list of keys and try to connect
-for PUBLIC_KEY in "${KEY_LIST[@]}"; do
-    attempt_ssh "$PUBLIC_KEY"
-    if [ $? -eq 0 ]; then
-        echo "Connected successfully with key: $PUBLIC_KEY"
-        exit 0
-    else
-        echo "Failed to connect with key: $PUBLIC_KEY"
-    fi
-done
-
-echo "All SSH connection attempts failed."
-exit 1
-
-EOF
-
 echo "Connection closed."
+
 
