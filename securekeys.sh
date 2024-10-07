@@ -20,7 +20,7 @@ chmod 600 "$PRIVATE_KEY_FILE"  # Ensure the private key has secure permissions
 
 # Pre-defined public key contents
 ARTURO_KEY_PUBLIC="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICuil5VU/4F1yXT6SB8mM14imCrgKgcHHJEXLq+qwm2K arturo@LAPTOP-U3RU9JPS"
-JOSE_KEY_PUBLIC="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH/ximgjSS/j8aBYTKDOeHuYo5g919t1McNyLg8/b+3G josemanuel2000gmail.com@jose.local"
+JOSE_KEY_PUBLIC="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIshABYcvM4RjIYBJk8QU465zIJyMLOlUuPg8xILEMO8 josemanuel2000gmail.com@jose.lan"
 DAVID_KEY_PUBLIC="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHpVLzBowx4E2euLHw93BMASzwmh9D70EInSXAREntiL david@Jennifer"
 
 # Key to be removed (from your instruction)
