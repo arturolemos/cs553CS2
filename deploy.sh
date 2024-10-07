@@ -4,13 +4,13 @@ PORT=22015
 REMOTE_USER="student-admin"
 REMOTE_HOST="paffenroth-23.dyn.wpi.edu"
 
-# Specify the public key to use
-PUBLIC_KEY="my_key"
+# Specify the private key to use
+PRIVATE_KEY="my_key"
 
-echo "Attempting to connect with key: $PUBLIC_KEY"
+echo "Attempting to connect with key: $PRIVATE_KEY"
 
 # Attempt SSH and run the commands
-ssh -t -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
+ssh -t -i "$PRIVATE_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
 
     REPO="https://github.com/arturolemos/cs553CS2.git"
     PYTHON_VERSION="3.9"
@@ -62,6 +62,3 @@ ssh -t -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
 EOF
 
 echo "Connection closed."
-
-
-
