@@ -4,7 +4,7 @@ PORT=22015
 REMOTE_USER="student-admin"
 REMOTE_HOST="paffenroth-23.dyn.wpi.edu"
 AUTHORIZED_KEYS_PATH="~/.ssh/authorized_keys"
-PRIVATE_KEY_FILE="./class_key" 
+PRIVATE_KEY_FILE="class_key" 
 
 
 # Pre-defined public key contents
