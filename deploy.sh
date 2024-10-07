@@ -44,8 +44,11 @@ ssh -t -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
     echo "Creating Conda environment with Python $PYTHON_VERSION..."
     conda create --name myenv "python=$PYTHON_VERSION" -y
 
+    echo "Activating the environment..."
+    conda activate myenv
+
     echo "Installing dependencies from requirements.txt..."
-    pip install -r requirements.txt
+    conda install --name myenv --file requirements.txt -y
 
     # Make app.py executable
     echo "Giving executable permission to app.py..."
@@ -59,5 +62,6 @@ ssh -t -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
 EOF
 
 echo "Connection closed."
+
 
 
