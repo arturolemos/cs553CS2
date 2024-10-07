@@ -8,29 +8,39 @@ PUBLIC_KEY=${1:-"jose_key"}
 REPO="https://github.com/arturolemos/cs553CS2.git"
 PYTHON_VERSION="3.9"
 
-echo "Using public key: $PUBLIC_KEY"
-echo "Connecting to remote server..."
-ssh -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST"
+echo "Connecting to remote server and running commands..."
 
-echo "Cloning repository $REPO..."
-git clone "$REPO"
+ssh -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
+    # Ensure we're in the home directory
+    cd ~
 
-REPO_NAME=$(basename "$REPO" .git)
+    echo "Cloning repository $REPO..."
+    git clone "$REPO"
 
-echo "Changing directory to $REPO_NAME..."
-cd "$REPO_NAME"
+    REPO_NAME=$(basename "$REPO" .git)
 
-echo "Downloading Miniconda installer..."
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    echo "Changing directory to $REPO_NAME..."
+    cd "$REPO_NAME"
 
-echo "Installing Miniconda..."
-bash Miniconda3-latest-Linux-x86_64.sh -b
+    echo "Downloading Miniconda installer..."
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
-echo "Activating Miniconda..."
-source ~/miniconda3/bin/activate
+    echo "Installing Miniconda..."
+    bash Miniconda3-latest-Linux-x86_64.sh -b -u
 
-echo "Creating Conda environment with Python $PYTHON_VERSION..."
-conda create --name myenv "python=$PYTHON_VERSION" -y
+    echo "Activating Miniconda..."
+    source ~/miniconda3/bin/activate
+
+    echo "Creating Conda environment with Python $PYTHON_VERSION..."
+    conda create --name myenv "python=$PYTHON_VERSION" -y
+
+    echo "Installing dependencies from requirements.txt..."
+    pip install -r requirements.txt
+
+    echo "Setup complete."
+EOF
+
+echo "Connection closed."
 
 echo "Installing dependencies from requirements.txt..."
 pip install -r requirements.txt
