@@ -53,7 +53,7 @@ ssh -t -i "$PUBLIC_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
 
     # Run app.py
     echo "Running app.py..."
-    ./app.py
+    python3 app.py
 
     echo "Setup and execution complete."
 EOF
