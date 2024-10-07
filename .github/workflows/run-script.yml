@@ -1,0 +1,20 @@
+name: Run Deploy Script
+
+on:
+  push:
+    branches:
+      - main  # Specify the branch that will trigger the workflow (e.g., main or another branch)
+
+jobs:
+  run-script-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # Checks out your repository so the script is available
+
+    - name: Make script executable (optional)
+      run: chmod +x ./deploy.sh
+
+    - name: Run the deploy script
+      run: ./deploy.sh
