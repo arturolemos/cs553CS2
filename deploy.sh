@@ -48,7 +48,7 @@ ssh -t -i "$PRIVATE_KEY" -p "$PORT" "$REMOTE_USER@$REMOTE_HOST" << 'EOF'
     conda activate myenv
 
     echo "Installing dependencies from requirements.txt..."
-    conda install --name myenv --file requirements.txt -y
+    pip install -r requirements.txt
 
     # Make app.py executable
     echo "Giving executable permission to app.py..."
