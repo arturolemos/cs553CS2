@@ -2,7 +2,7 @@
 
 REMOTE_USER="student-admin"
 REMOTE_HOST="paffenroth-23.dyn.wpi.edu"
-PRIVATE_KEY="./class_key"  
+PRIVATE_KEY="class_key"  
 PORT=22015 
 
 SCRIPTS_TO_RUN=("./secure_keys.sh" "./deploy.sh")
