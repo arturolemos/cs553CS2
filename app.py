@@ -12,7 +12,7 @@ stop_inference = False
 
 def respond(
     message,
-    history: list,
+    history: list[tuple[str, str]],
     system_message="You are a friendly Chatbot.",
     max_tokens=512,
     temperature=0.7,
