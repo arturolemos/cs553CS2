@@ -48,7 +48,9 @@ def respond(
                 response = "Inference cancelled."
                 yield history + [(message, response)]
                 return
-            response += output['generated_text']
+            print(output)
+            token = output['generated_text'][-1]['content']
+            response += token
             yield history + [(message, response)]  # Yield history + new response
 
     else:
