@@ -1,35 +1,21 @@
-# Start from a base image with wget
-FROM ubuntu:latest
+# Use a slim Python base image
+FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHON_VERSION=3.9
+# Set the working directory
+WORKDIR /opt/app
 
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y wget git && \
-    apt-get clean
+# Copy the current directory contents into the container
+COPY . .
 
-# Download and install Miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -u -p /opt/miniconda && \
-    rm Miniconda3-latest-Linux-x86_64.sh
+# Install required Python packages
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Add Miniconda to PATH
-ENV PATH=/opt/miniconda/bin:$PATH
+# Expose only the necessary ports
+EXPOSE 7860
+EXPOSE 8000
 
-# Create the Conda environment
-RUN conda create --name myenv python=${PYTHON_VERSION} -y
+# Set environment variable for Gradio
+ENV GRADIO_SERVER_NAME="0.0.0.0"
 
-# Activate the Conda environment
-SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
-
-# Clone the repository
-RUN git clone https://github.com/arturolemos/cs553CS2.git && cd cs553CS2
-
-# Install dependencies in the Conda environment
-WORKDIR /cs553CS2
-RUN conda run -n myenv pip install -r requirements.txt
-
-# Make app.py executable and set it as the default command
-RUN chmod +x app.py
-CMD ["conda", "run", "-n", "myenv", "python3", "app.py"]
+# Run the Python application
+CMD ["python", "/opt/app/app.py"]
