@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /opt/app
 
 # Copy the current directory contents into the container
-COPY . .
+COPY cs553CS2 /opt/app
 
 # Install required Python packages
 RUN pip install --no-cache-dir -r requirements.txt
