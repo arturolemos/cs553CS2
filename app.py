@@ -4,7 +4,7 @@ import torch
 from transformers import pipeline
 
 # Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token="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")
+client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token="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")
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
